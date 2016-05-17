@@ -10,6 +10,8 @@ namespace traffic_client
     {
         static void Main(string[] args)
         {
+			Client client = new Client();
+			client.Run();
         }
     }
 }
