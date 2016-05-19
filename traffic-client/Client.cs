@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Text;
 
 namespace traffic_client
 {
@@ -22,7 +24,7 @@ namespace traffic_client
 			this._networkStream = this._networkClient.GetStream();
 			this._networkListenerThread.Start();
 
-			byte[] message = new byte[]{(byte)'H', (byte)'e', (byte)'l', (byte)'l', (byte)'o'};
+			byte[] message = new byte[]{(byte)'H', (byte)'e', (byte)'l', (byte)'l', (byte)'o', (byte)4};
 			this._networkStream.Write(message, 0, message.Length);
 		}
 
@@ -31,34 +33,28 @@ namespace traffic_client
 			// TODO : Make this neater
 			while (true)
 			{
-				int result = -1;
-				string message = "";
+				byte[] packet = this.GetBytePacket(this._networkStream);
 
-				while (result == -1)
-				{
-					result = this._networkStream.ReadByte();
+				StringBuilder builder = new StringBuilder();
+				foreach (byte b in packet)
+					builder.Append(b);
 
-					if (result != -1)
-					{
-						message += (char)result;
-						break;
-					}
-				}
-
-				while (result != -1)
-				{
-					result = this._networkStream.ReadByte();
-					if (result == -1)
-						break;
-					else
-					{
-						message += (char)result;
-						Console.WriteLine("Got {0}", (int)result);
-					}
-				}
-
-				Console.WriteLine("Got message from server : {0}", message.ToString());
+				Console.WriteLine("Got message from server : {0}", builder.ToString());
 			}
+		}
+
+		public byte[] GetBytePacket(NetworkStream stream)
+		{
+			List<byte> tmpList = new List<byte>();
+
+			int readByte = 0x00;
+			while ((readByte = stream.ReadByte()) == -1) { };
+			tmpList.Add((byte)readByte);
+
+			while ((readByte = stream.ReadByte()) != 4)
+				tmpList.Add((byte)readByte);
+
+			return tmpList.ToArray();
 		}
 	}
 }
