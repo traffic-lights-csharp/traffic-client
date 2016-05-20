@@ -49,7 +49,7 @@ namespace traffic_client
 			this._networkListenerThread.Start();
 			this._connected = true;
 
-			this.SendString("Hello!");
+			//this.SendString("Hello!");
 		}
 
 		public void Close()
